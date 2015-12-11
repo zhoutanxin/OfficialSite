@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:rop="http://www.bookegou.com/schema/rop" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+			http://www.springframework.org/schema/context 
+			http://www.springframework.org/schema/context/spring-context-3.0.xsd
+			http://www.springframework.org/schema/aop 
+			http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+			http://www.springframework.org/schema/tx 
+			http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+			http://www.springframework.org/schema/mvc 
+			http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+			http://www.springframework.org/schema/context 
+			http://www.springframework.org/schema/context/spring-context-3.0.xsd" default-lazy-init="false">
+	<context:annotation-config />	
+		<context:component-scan base-package="com" >
+    </context:component-scan>
+	<!-- AOP代理可实现接口 -->
+	<aop:aspectj-autoproxy />    	
+	<!-- 属性文件读入 -->
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath*:config/jdbc.properties</value>
+				<value>classpath*:config/mail.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- 数据源定义,使用Apache DBCP 连接池-->
+	<!-- <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driverClassName}"/>
+		<property name="url" value="${jdbc.url}"/>
+		<property name="username" value="${jdbc.username}"/>
+		<property name="password" value="${jdbc.password}"/>
+		<property name="initialSize" value="5" />
+		<property name="maxActive" value="100" />
+		<property name="maxIdle" value="30" />
+		<property name="maxWait" value="1000" />
+		<property name="validationQuery">
+           <value>select count(1) from Dual</value>
+        </property>
+        test when get connection
+        <property name="testOnBorrow">
+           <value>true</value>
+        </property>
+        test when return connection to pool
+        <property name="testOnReturn">
+           <value>true</value>
+        </property>
+        <property name="testWhileIdle">
+           <value>true</value>
+        </property>		
+	</bean> -->
+	 
+	 
+   <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">      
+      <property name="driverClass" value="${jdbc.driverClassName}" />      
+      <property name="jdbcUrl" value="${jdbc.url}" />      
+      <property name="user" value="${jdbc.username}" />      
+      <property name="password" value="${jdbc.password}" />      
+   </bean>  
+   
+   	
+	<bean id = "transactionManager" 
+         class = "org.springframework.jdbc.datasource.DataSourceTransactionManager" > 
+         <property name = "dataSource" > 
+             <ref bean = "dataSource" /> 
+         </property > 
+     </bean >
+     <!-- EOP -->
+	<bean id="simpleJdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
+  		<constructor-arg><ref bean="dataSource"/></constructor-arg>
+	</bean>
+	<bean id="springContextHolder" class="com.enation.framework.context.spring.SpringContextHolder" lazy-init="false"/>
+	<bean class="com.enation.framework.plugin.PluginLoader"></bean>	
+   	<bean id="jdbcTemplate" class="com.enation.framework.database.impl.LowerCaseJdbcTemplate">
+   		<property name="dataSource">  
+            <ref bean="dataSource" />  
+        </property> 
+   	</bean>	
+   	<bean id="sqlFileExecutor" class="com.enation.framework.database.impl.DefaultSqlFileExecutor"></bean>	
+ 	<bean id="daoSupport" class="com.enation.framework.database.impl.JdbcDaoSupport"></bean>
+ 
+	<bean id="baseDBRouter" class="com.enation.eop.sdk.database.DBRouter">
+		<property name="prefix">
+			<value>es_</value>
+		</property>
+	</bean>		
+	
+	<bean id="baseDaoSupport" class="com.enation.eop.sdk.database.BaseJdbcDaoSupport">
+		<property name="dbRouter">
+			<ref bean="baseDBRouter"/>
+		</property>		
+	</bean>
+	 	 	
+	<bean id="baseSupport" class="com.enation.eop.sdk.database.BaseSupport"  abstract="true" >
+	</bean> 
+	 <!-- EOP END -->  
+    <tx:advice id="txAdvice" transaction-manager="transactionManager"> 
+        <tx:attributes> 
+             <!--所有以find开头的业务逻辑方法均不需要事物控制且只读-->
+            <tx:method name="find*" propagation="NOT_SUPPORTED" read-only="true"/>
+            <!--设置所有方法均进行事物控制，如果当前没有事物，则新建一个事物-->
+            <tx:method name="*" propagation="REQUIRES_NEW" read-only="false"  rollback-for="Exception"/>  
+        </tx:attributes> 
+    </tx:advice> 
+    <aop:config> 
+        <aop:pointcut id="transactionPointcut"  expression="execution(* com.*.*.web.*.*(..))" /> 
+             <!-- 把事务控制在Business层 --> 
+        <aop:advisor pointcut-ref="transactionPointcut" advice-ref="txAdvice" /> 
+    </aop:config>      
+ 
+	<!-- 支持 @Transactional 标记 -->
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	   
+ 	<!-- 	文件上传 	 -->
+    <bean id="multipartResolver" 
+        class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--set the max upload size100MB--> 
+        <property name="maxUploadSize"> 
+            <value>104857600</value> 
+        </property> 
+        <property name="maxInMemorySize"> 
+            <value>1024000</value> 
+        </property> 
+    </bean> 	
+    
+     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">    
+	     <property name="dataSource" ref="dataSource" /> 
+	     <property name="configLocation" value="classpath:/mapper/mybatis-config.xml" />
+     </bean>    
+     <!-- 指定mybatis 的SqlSession -->
+     <bean id="sqlSession"   class="org.mybatis.spring.SqlSessionTemplate">   
+          <constructor-arg index="0" ref="sqlSessionFactory" />   
+     </bean>
+	<!-- 用mybatis扫描注解机制自动生成DAOImpl -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.doadway" />
+		<property name="annotationClass" value="org.springframework.stereotype.Repository" />
+	</bean>     
+    <!-- 引入mail-context 配置-->
+	<import  resource="classpath:/config/mail-context.xml"/>	
+	<!-- 引入ehcache_context 缓存配置-->
+	<import  resource="classpath:/config/ehcache-context.xml"/>	
+    <!-- 引入验证授权配置-->  
+	<import  resource="classpath:/config/shiro-context.xml"/>	
+</beans>
+

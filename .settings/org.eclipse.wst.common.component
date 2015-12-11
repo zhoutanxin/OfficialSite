@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="OfficialSite">
+        <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/eop"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/test"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/cms"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/resource"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/base"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/glodmine"/>
+        <property name="context-root" value="OfficialSite"/>
+        <property name="java-output-path" value="/OfficialSite/build/classes"/>
+    </wb-module>
+</project-modules>
