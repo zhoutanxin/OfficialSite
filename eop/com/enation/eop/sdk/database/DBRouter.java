@@ -1,5 +1,7 @@
 package com.enation.eop.sdk.database;
 
+import javax.annotation.Resource;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.enation.eop.resource.model.EopSite;
@@ -19,6 +21,7 @@ import com.enation.framework.util.StringUtil;
  * @version 1.0
  */
 public class DBRouter implements IDBRouter {
+    @Resource
 	private JdbcTemplate jdbcTemplate;
 
 	// 表前缀

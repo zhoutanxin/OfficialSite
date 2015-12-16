@@ -28,7 +28,7 @@ public class WWAction {
 
 	protected static final String MESSAGE = "message";
 
-	protected static final String JSON_MESSAGE = "json_message";
+	protected static final String JSON_MESSAGE = "admin/json_message.jsp";
 
 	
 

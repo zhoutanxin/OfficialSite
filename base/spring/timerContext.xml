@@ -32,13 +32,13 @@
 	         <property name="repeatInterval" value="60000"/>  <!-- 表示隔多少毫秒启动 -->
 	     </bean>
 	       <!--一个定时的调度器-->
-	     <bean id="cronTrigger"
+	     <bean id="cronTrigger" 
 	         class="org.springframework.scheduling.quartz.CronTriggerBean">
 	         <property name="jobDetail" ref="reportJob"/>
-	         <property name="cronExpression" value="5 * * * * ?"/> <!-- 每天早上?点启动任务-->
+	         <property name="cronExpression" value="0 15 10 ? * *"/> <!-- 每天早上?点启动任务-->
 	     </bean>
 	     <!-- 总管理类 如果将lazy-init='false'那么容器启动就会执行调度程序  -->
-	     <bean lazy-init="false" autowire="no" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+	     <bean lazy-init="false" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 	         <property name="triggers">
 	             <list>
 	                 <ref bean="cronTrigger"/>

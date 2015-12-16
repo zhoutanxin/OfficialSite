@@ -237,8 +237,7 @@ public class EopInstallAction extends WWAction {
 		}
 	}
 	@RequestMapping(value="install/doInstall")
-	@ResponseBody
-	public String doInstall(){
+	public String doInstall(Map<String,Object> model){
 		try{
 		    productid=this.getRequest().getParameter("productid");
 			//saas模式可以自定义域名
@@ -252,7 +251,8 @@ public class EopInstallAction extends WWAction {
 			e.printStackTrace();
 			this.json="{result:0}";
 		}	
-		return this.json;
+		model.put("json", this.json);
+		return WWAction.JSON_MESSAGE;
 	}
 
 	/**
@@ -312,14 +312,15 @@ public class EopInstallAction extends WWAction {
 		return createAndTest("com.microsoft.sqlserver.jdbc.SQLServerDriver", "jdbc:sqlserver://" + dbhost + ";databaseName=" + dbname);
 	}
 	@RequestMapping(value="install/testConnection")
-	@ResponseBody
-	public String testConnection(){
+	public String testConnection(Map<String,Object> model){
 		boolean result = false;
 		this.dbtype=this.getRequest().getParameter("dbtype");
 		this.dbhost=this.getRequest().getParameter("dbhost");
 		this.dbname=this.getRequest().getParameter("dbname");
 		this.uname=this.getRequest().getParameter("uname");
 		this.pwd=this.getRequest().getParameter("pwd");
+		this.solutionpath=this.getRequest().getParameter("solutionpath");
+		this.domain=this.getRequest().getParameter("domain");
 		if("mysql".equals(dbtype))
 			result = this.mysqlTestConnection();
 		else if("oracle".equals(dbtype))
@@ -332,12 +333,11 @@ public class EopInstallAction extends WWAction {
 		}else{
 			this.json="{result:0}";
 		}
-		
-		return this.json;
+		model.put("json",this.json);
+		return WWAction.JSON_MESSAGE;
 	}
    @RequestMapping(value="install/testReady")
-    @ResponseBody
-	public String testReady(){
+	public String testReady(Map<String,Object> model){
 		try{
 			if("mysql".equals(dbtype))
 				this.jdbcTemplate.execute("drop table if exists test");
@@ -347,7 +347,8 @@ public class EopInstallAction extends WWAction {
 			this.json="{result:0}";
 		}		
 		
-		return this.json;
+	      model.put("json",this.json);
+	      return WWAction.JSON_MESSAGE;
 	}
 	
  
@@ -356,7 +357,7 @@ public class EopInstallAction extends WWAction {
 	 * @return
 	 */
 	private DataSource switchNewDBSource(){
-		this.testConnection();
+		this.testConnection(this.model);
 		DataSource newDataSource = this.dataSourceCreator.createDataSource("com.mysql.jdbc.Driver", "jdbc:mysql://"+dbhost+"/"+this.dbname+"?useUnicode=true&characterEncoding=utf8", this.uname, this.pwd);
 		this.dataSource= newDataSource;
 		this.jdbcTemplate.setDataSource(newDataSource);
