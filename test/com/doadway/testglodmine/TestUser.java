@@ -16,7 +16,7 @@ import com.doadway.glodmine.core.model.Member;
 import com.enation.framework.email.Mail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:/spring/dataAccessContext-jdbc.xml","classpath:/config/dispatcher-servlet.xml" })
+@ContextConfiguration(locations = { "classpath:/spring/dataAccessContext-jdbc.xml","classpath:/config/dispatcher-servlet.xml","classpath:/spring/*.xml" })
 public class TestUser {
 	  @Resource
 	  private MemberBiz memberBiz;
