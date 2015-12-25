@@ -2,11 +2,17 @@
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
 	<plugins>
+		<plugin interceptor="com.google.code.shardbatis.plugin.ShardPlugin"> 
+                <property name="shardingConfig" value="mapper/shard_config.xml"/> 
+        </plugin> 
 		<plugin interceptor="com.enation.framework.pager.simple.PagePlugin">
  			<property name="dialect" value="mysql"/>    
 	        <property name="pageSqlId" value=".*ByPage.*"/> 		
 		</plugin>
+		
+	
 	</plugins>	
+	
 	<mappers>
 		 <mapper  resource="mapper/glodmine/IncomeMapper.xml"/>
 		 <mapper  resource="mapper/glodmine/IncomeTypeMapper.xml"/>
