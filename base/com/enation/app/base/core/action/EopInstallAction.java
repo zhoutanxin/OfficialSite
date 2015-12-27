@@ -104,9 +104,11 @@ public class EopInstallAction extends WWAction {
 		return "/install/step3";
 	}
 	@RequestMapping(value="install/installSuccess")
-	public String installSuccess(){
+	public String installSuccess(Map<String,Object> model){
 		FileUtil.write(EopSetting.EOP_PATH+"/install/install.lock", "如果要重新安装，请删除此文件，并重新起动web容器");
 		EopSetting.INSTALL_LOCK ="yes";
+		model.put("uname", this.uname);
+		model.put("pwd", this.pwd);		
 		return "/install/success";
 	}
 	
@@ -238,6 +240,8 @@ public class EopInstallAction extends WWAction {
 	public String doInstall(Map<String,Object> model){
 		try{
 		    productid=this.getRequest().getParameter("productid");
+		    uname=this.getRequest().getParameter("uname");
+		    pwd=this.getRequest().getParameter("pwd");
 			//saas模式可以自定义域名
 			if("2".equals(EopSetting.RUNMODE)){
 				eopInstallManager.install(uname,pwd,domain,productid);
