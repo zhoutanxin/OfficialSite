@@ -27,7 +27,7 @@
 				/error/**= anon
 				/getVCode*= anon
 				/getSmsCode*= anon
-			    /**= authc
+			    /**= anon
 			</value>
 		</property>
 	</bean>
